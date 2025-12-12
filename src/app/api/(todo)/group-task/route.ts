@@ -18,8 +18,6 @@ export const POST = createApiHandler(
   async (request, context: ApiContext) => {
     const validatedData = context.validatedData as CreateUpdateGroupTaskInput;
 
-    // Validasi type: jika type adalah schedule, start_date dan end_date wajib diisi
-    // Jika type adalah no_schedule atau routine, start_date dan end_date harus null
     if (validatedData.type === "schedule") {
       if (
         !validatedData.start_date ||
@@ -38,12 +36,10 @@ export const POST = createApiHandler(
       validatedData.type === "no_schedule" ||
       validatedData.type === "routine"
     ) {
-      // Set start_date dan end_date menjadi null untuk no_schedule dan routine
       validatedData.start_date = null;
       validatedData.end_date = null;
     }
 
-    // Buat group task
     await createGroupTask(context.userId, validatedData);
 
     return NextResponse.json(

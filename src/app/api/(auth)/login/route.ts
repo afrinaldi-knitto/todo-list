@@ -11,14 +11,12 @@ export async function POST(request: NextRequest) {
     const validationResult = loginSchema.safeParse(body);
 
     if (!validationResult.success) {
-      // Mapping error berdasarkan path untuk pesan yang lebih jelas
       const errorMessages: string[] = [];
       const processedFields = new Set<string>();
 
       validationResult.error.issues.forEach((issue) => {
         const field = issue.path[0] as string;
 
-        // Cek jika field tidak dikirimkan (undefined atau null)
         if (issue.code === "invalid_type") {
           const receivedValue =
             typeof issue === "object" && issue !== null && "received" in issue
@@ -26,7 +24,6 @@ export async function POST(request: NextRequest) {
               : null;
 
           if (receivedValue === "undefined" || receivedValue === "null") {
-            // Field tidak dikirimkan
             if (!processedFields.has(field)) {
               if (field === "username") {
                 errorMessages.push("Username tidak boleh kosong");
@@ -41,7 +38,6 @@ export async function POST(request: NextRequest) {
           }
         }
 
-        // Error lainnya (validation error)
         if (!processedFields.has(field)) {
           errorMessages.push(issue.message);
           processedFields.add(field);
@@ -58,10 +54,8 @@ export async function POST(request: NextRequest) {
 
     const { username, password } = validationResult.data;
 
-    // Login user dan verifikasi password
     const user = await loginUser({ username, password });
 
-    // Generate JWT token
     const token = generateToken({
       id: user.id,
       username: user.username,
@@ -71,7 +65,6 @@ export async function POST(request: NextRequest) {
       status: 200,
     });
   } catch (error: unknown) {
-    // Handle error dari service (username/password salah)
     if (
       error instanceof Error &&
       error.message === "Username atau password salah"

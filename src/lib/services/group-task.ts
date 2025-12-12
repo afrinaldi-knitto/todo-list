@@ -112,7 +112,6 @@ export async function updateGroupTask(
   const client = await connectionPool.connect();
 
   try {
-    // Build dynamic UPDATE query berdasarkan field yang dikirim
     const updateFields: string[] = [];
     const values: unknown[] = [];
     let paramIndex = 1;
@@ -142,11 +141,9 @@ export async function updateGroupTask(
     }
 
     if (updateFields.length === 0) {
-      // Tidak ada field yang diupdate
       return true;
     }
 
-    // Tambahkan user_id dan groupTaskId ke values
     values.push(userId, groupTaskId);
 
     const query = `

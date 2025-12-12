@@ -19,10 +19,8 @@ export const createUpdateGroupTaskSchema = z.object({
     .refine(
       (val) => {
         if (val === null || val === undefined || val === "") return true;
-        // Validasi format YYYY-MM-DD
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(val)) return false;
-        // Validasi bahwa tanggal valid
         const date = new Date(val);
         return date instanceof Date && !isNaN(date.getTime());
       },
@@ -38,10 +36,8 @@ export const createUpdateGroupTaskSchema = z.object({
     .refine(
       (val) => {
         if (val === null || val === undefined || val === "") return true;
-        // Validasi format YYYY-MM-DD
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         if (!dateRegex.test(val)) return false;
-        // Validasi bahwa tanggal valid
         const date = new Date(val);
         return date instanceof Date && !isNaN(date.getTime());
       },
@@ -80,10 +76,8 @@ export const updateGroupTaskSchema = z
       .refine(
         (val) => {
           if (val === null || val === undefined || val === "") return true;
-          // Validasi format YYYY-MM-DD
           const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
           if (!dateRegex.test(val)) return false;
-          // Validasi bahwa tanggal valid
           const date = new Date(val);
           return date instanceof Date && !isNaN(date.getTime());
         },
@@ -99,10 +93,8 @@ export const updateGroupTaskSchema = z
       .refine(
         (val) => {
           if (val === null || val === undefined || val === "") return true;
-          // Validasi format YYYY-MM-DD
           const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
           if (!dateRegex.test(val)) return false;
-          // Validasi bahwa tanggal valid
           const date = new Date(val);
           return date instanceof Date && !isNaN(date.getTime());
         },
@@ -112,6 +104,6 @@ export const updateGroupTaskSchema = z
       )
       .transform((val) => (val === "" ? null : val)),
   })
-  .strict(); // Hanya menerima key yang didefinisikan
+  .strict();
 
 export type UpdateGroupTaskInput = z.infer<typeof updateGroupTaskSchema>;

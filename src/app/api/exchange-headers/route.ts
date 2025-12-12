@@ -3,10 +3,8 @@ import { publishMessageHeaders, TaskPayload } from "@/lib/rabbitmq";
 
 export async function POST(request: Request) {
   try {
-    // Ambil data dari Body Request
     const body = await request.json();
 
-    // Validasi sederhana
     if (!body.action) {
       return NextResponse.json(
         { error: 'Field "action" wajib diisi' },
@@ -14,14 +12,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Siapkan Payload
     const payload: TaskPayload = {
       id: crypto.randomUUID(),
       action: body.action,
       data: body.data || {},
     };
 
-    // Kirim ke RabbitMQ (Queue: "queue.log.info")
     await publishMessageHeaders("queue_dokumen_rahasia", payload);
 
     return NextResponse.json({

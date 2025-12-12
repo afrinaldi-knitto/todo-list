@@ -32,16 +32,13 @@ export class ApiError extends Error {
  * Handle error dan return NextResponse yang sesuai
  */
 export function handleApiError(error: unknown): NextResponse {
-  // Handle ApiError custom
   if (error instanceof ApiError) {
     return NextResponse.json(errorResponse(error.message), {
       status: error.statusCode,
     });
   }
 
-  // Handle Error instance
   if (error instanceof Error) {
-    // Error dari database connection
     if (
       error.message.includes("connection") ||
       error.message.includes("ECONNREFUSED")
@@ -53,7 +50,6 @@ export function handleApiError(error: unknown): NextResponse {
       );
     }
 
-    // Error dari query database
     if (error.message.includes("query") || error.message.includes("syntax")) {
       console.error("Error query database:", error);
       return NextResponse.json(
@@ -62,7 +58,6 @@ export function handleApiError(error: unknown): NextResponse {
       );
     }
 
-    // Error tidak ditemukan
     if (
       error.message.includes("tidak ditemukan") ||
       error.message.includes("not found")
@@ -70,7 +65,6 @@ export function handleApiError(error: unknown): NextResponse {
       return NextResponse.json(errorResponse(error.message), { status: 404 });
     }
 
-    // Error constraint violation (PostgreSQL error codes)
     if (
       error &&
       typeof error === "object" &&
@@ -83,7 +77,6 @@ export function handleApiError(error: unknown): NextResponse {
       );
     }
 
-    // Error lainnya dari service
     console.error("Error dari service:", error);
     return NextResponse.json(
       errorResponse(
@@ -93,12 +86,10 @@ export function handleApiError(error: unknown): NextResponse {
     );
   }
 
-  // Error yang tidak diketahui
   console.error("Error tidak diketahui:", error);
-  return NextResponse.json(
-    errorResponse("Terjadi kesalahan internal server"),
-    { status: 500 }
-  );
+  return NextResponse.json(errorResponse("Terjadi kesalahan internal server"), {
+    status: 500,
+  });
 }
 
 /**
@@ -111,4 +102,3 @@ export function createApiError(
 ): ApiError {
   return new ApiError(message, statusCode, type);
 }
-

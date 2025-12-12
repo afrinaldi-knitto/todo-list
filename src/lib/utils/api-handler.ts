@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateRequest, AuthResult } from "./auth";
 import { handleApiError } from "./error-handler";
-import { parseJsonBody, validateNonEmptyBody, validateAllowedKeys } from "./request";
+import {
+  parseJsonBody,
+  validateNonEmptyBody,
+  validateAllowedKeys,
+} from "./request";
 import { validateRequest } from "./validation";
 import { ZodSchema } from "zod";
 import { successResponse } from "./response";
@@ -59,20 +63,17 @@ export function createApiHandler<T = unknown>(
     context?: { params?: Promise<Record<string, string>> }
   ): Promise<NextResponse> => {
     try {
-      // 1. Authentication
       let auth: AuthResult | undefined;
       if (requireAuth) {
         const authResult = await authenticateRequest(request);
         if (authResult instanceof NextResponse) {
-          return authResult; // Error response
+          return authResult;
         }
         auth = authResult;
       }
 
-      // 2. Parse params jika ada
       const params = context?.params ? await context.params : {};
 
-      // 3. Parse JSON body jika diperlukan
       let body: unknown = undefined;
       if (schema || requireBody || allowedKeys) {
         const parseResult = await parseJsonBody(request);
@@ -82,7 +83,6 @@ export function createApiHandler<T = unknown>(
         body = parseResult.data;
       }
 
-      // 4. Validate body tidak kosong jika diperlukan
       if (requireBody && body !== undefined) {
         const validateResult = validateNonEmptyBody(body);
         if (!validateResult.success) {
@@ -90,7 +90,6 @@ export function createApiHandler<T = unknown>(
         }
       }
 
-      // 5. Validate allowed keys jika diperlukan
       if (allowedKeys && body !== undefined) {
         const validateResult = validateAllowedKeys(body, allowedKeys);
         if (!validateResult.success) {
@@ -98,7 +97,6 @@ export function createApiHandler<T = unknown>(
         }
       }
 
-      // 6. Validate dengan schema jika ada
       let validatedData: unknown = body;
       if (schema && body !== undefined) {
         const validateResult = validateRequest(schema, body);
@@ -108,7 +106,6 @@ export function createApiHandler<T = unknown>(
         validatedData = validateResult.data;
       }
 
-      // 7. Create context untuk handler
       const apiContext: ApiContext = {
         userId: auth?.userId || "",
         auth: auth!,
@@ -117,15 +114,12 @@ export function createApiHandler<T = unknown>(
         body,
       };
 
-      // 8. Execute handler
       const result = await handler(request, apiContext);
 
-      // 9. Handle result
       if (result instanceof NextResponse) {
         return result;
       }
 
-      // Jika handler return data langsung, wrap dengan success response
       return NextResponse.json(successResponse(result));
     } catch (error) {
       return handleApiError(error);
@@ -142,4 +136,3 @@ export function createPublicApiHandler<T = unknown>(
 ) {
   return createApiHandler(handler, { ...options, requireAuth: false });
 }
-

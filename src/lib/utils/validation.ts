@@ -12,7 +12,6 @@ export function formatValidationError(error: ZodError): string[] {
   error.issues.forEach((issue) => {
     const field = issue.path[0] as string;
 
-    // Cek jika field tidak dikirimkan (undefined atau null)
     if (issue.code === "invalid_type") {
       const receivedValue =
         typeof issue === "object" && issue !== null && "received" in issue
@@ -20,17 +19,14 @@ export function formatValidationError(error: ZodError): string[] {
           : null;
 
       if (receivedValue === "undefined" || receivedValue === "null") {
-        // Field tidak dikirimkan
         if (!processedFields.has(field)) {
-          // Custom messages untuk field tertentu
           const fieldMessages: Record<string, string> = {
             username: "Username tidak boleh kosong",
             password: "Password tidak boleh kosong",
             type: "Type tidak boleh kosong",
           };
 
-          const message =
-            fieldMessages[field] || `${field} tidak boleh kosong`;
+          const message = fieldMessages[field] || `${field} tidak boleh kosong`;
           errorMessages.push(message);
           processedFields.add(field);
         }
@@ -38,7 +34,6 @@ export function formatValidationError(error: ZodError): string[] {
       }
     }
 
-    // Error lainnya (validation error)
     if (!processedFields.has(field)) {
       errorMessages.push(issue.message);
       processedFields.add(field);
@@ -78,4 +73,3 @@ export function validateRequest<T>(
     data: result.data,
   };
 }
-
